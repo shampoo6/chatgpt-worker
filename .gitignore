@@ -1,0 +1,6 @@
+node_modules
+/puppeteer.config.js
+**/*.bak
+dist
+lib
+cookies

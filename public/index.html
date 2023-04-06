@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<textarea id="input" rows="4">
+你认为下一届美国总统会是特朗普还是拜登
+</textarea>
+<button onclick="send()">发送</button>
+<br/>
+<textarea id="output" rows="4"></textarea>
+</body>
+<script>
+    const input = document.querySelector('#input');
+    const output = document.querySelector('#output');
+
+    async function send() {
+        const response = await fetch('/question?question=' + input.value, {method: 'get'});
+
+        if (!response.ok) {
+            throw Error(response.status);
+        }
+
+        const reader = response.body.getReader();
+        let r;
+        do {
+            r = await reader.read();
+            const {value, done} = r;
+            console.log('收到数据');
+            console.log('value: ', value);
+            console.log('value.toString()', new TextDecoder().decode(value));
+            console.log('done: ', done);
+
+            if (value)
+                output.value = JSON.parse(new TextDecoder().decode(value)).content;
+        } while (!r.done);
+    }
+</script>
+</html>
