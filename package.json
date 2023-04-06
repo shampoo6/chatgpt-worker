@@ -11,8 +11,8 @@
     "version": "git add -A src",
     "postversion": "git push && git push --tags"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["ChatGPT", "worker_threads", "ai"],
+  "author": "shampoo6",
   "license": "ISC",
   "devDependencies": {
     "@types/express": "^4.17.17",
