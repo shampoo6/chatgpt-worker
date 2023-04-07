@@ -18,11 +18,12 @@ export enum EventName {
 
 export class WorkerProxy {
   private worker: Worker
-  private eventHandlers: { [key: string]: EventHandler[] }
+  private readonly eventHandlers: { [key: string]: EventHandler[] }
 
   constructor() {
     // 读取配置，确定使用哪个worker_threads
     const configFilePath = path.resolve(process.cwd(), 'puppeteer.config.js')
+    this.eventHandlers = {}
     fsp.access(configFilePath)
       .then(() => import(configFilePath))
       .then(module => Promise.resolve(module.default))
@@ -42,7 +43,6 @@ export class WorkerProxy {
   }
 
   private initWorkerEvent() {
-    this.eventHandlers = {}
     this.eventHandlers[EventName.Message] = new Array<EventHandler>()
     this.eventHandlers[EventName.Error] = new Array<EventHandler>()
     this.eventHandlers[EventName.Exit] = new Array<EventHandler>()
