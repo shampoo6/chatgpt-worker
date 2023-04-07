@@ -12,7 +12,8 @@ export enum EventName {
   Message = 'message',
   Error = 'error',
   Exit = 'exit',
-  Online = 'online'
+  Online = 'online',
+  Ready = 'ready'
 }
 
 export class WorkerProxy {
@@ -46,8 +47,9 @@ export class WorkerProxy {
     this.eventHandlers[EventName.Error] = new Array<EventHandler>()
     this.eventHandlers[EventName.Exit] = new Array<EventHandler>()
     this.eventHandlers[EventName.Online] = new Array<EventHandler>()
-    this.worker.on(EventName.Message, e => {
-      this.eventHandlers[EventName.Message].forEach(fn => {
+    this.worker.on(EventName.Message, (e: WorkerMessage) => {
+      const eventHandlers = this.eventHandlers[e.type === WorkerMessageType.Ready ? EventName.Ready : EventName.Message]
+      eventHandlers.forEach(fn => {
         fn(e)
       })
     })
@@ -66,22 +68,18 @@ export class WorkerProxy {
         fn()
       })
     })
-
     this.on(EventName.Message, e => {
       if (e.type === WorkerMessageType.Report) {
         console.log(e.message)
       }
     })
-
     this.on(EventName.Error, e => {
       console.error('worker error: ')
       console.error(e)
     })
-
     this.on(EventName.Exit, e => {
       console.log(`worker exit code: ${e}`)
     })
-
   }
 
   public on(eventName: EventName, eventHandler: EventHandler): void {

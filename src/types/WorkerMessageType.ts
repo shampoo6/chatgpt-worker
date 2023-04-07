@@ -4,6 +4,10 @@ export enum WorkerMessageType {
    */
   Exit,
   /**
+   * 准备就绪
+   */
+  Ready,
+  /**
    * 报告消息
    */
   Report,

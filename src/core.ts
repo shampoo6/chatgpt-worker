@@ -111,7 +111,9 @@ export abstract class ChatWorker {
 
   protected abstract signIn(): Promise<void>;
 
-  protected abstract ready(): Promise<void>;
+  protected async ready(): Promise<void> {
+    parentPort.postMessage(WorkerMessage.build(WorkerMessageType.Ready))
+  }
 
   protected async report(message: string): Promise<void> {
     await report(message, this.name)
