@@ -24,6 +24,10 @@ export class WorkerProxy {
     // 读取配置，确定使用哪个worker_threads
     const configFilePath = path.resolve(process.cwd(), 'puppeteer.config.js')
     this.eventHandlers = {}
+    this.eventHandlers[EventName.Message] = new Array<EventHandler>()
+    this.eventHandlers[EventName.Error] = new Array<EventHandler>()
+    this.eventHandlers[EventName.Exit] = new Array<EventHandler>()
+    this.eventHandlers[EventName.Online] = new Array<EventHandler>()
     fsp.access(configFilePath)
       .then(() => import(configFilePath))
       .then(module => Promise.resolve(module.default))
@@ -43,10 +47,6 @@ export class WorkerProxy {
   }
 
   private initWorkerEvent() {
-    this.eventHandlers[EventName.Message] = new Array<EventHandler>()
-    this.eventHandlers[EventName.Error] = new Array<EventHandler>()
-    this.eventHandlers[EventName.Exit] = new Array<EventHandler>()
-    this.eventHandlers[EventName.Online] = new Array<EventHandler>()
     this.worker.on(EventName.Message, (e: WorkerMessage) => {
       const eventHandlers = this.eventHandlers[e.type === WorkerMessageType.Ready ? EventName.Ready : EventName.Message]
       eventHandlers.forEach(fn => {
