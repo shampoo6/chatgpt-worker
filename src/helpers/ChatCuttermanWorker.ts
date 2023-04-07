@@ -43,7 +43,7 @@ export class ChatCuttermanWorker extends ChatWorker {
   }
 
   protected async ready(): Promise<void> {
-    await this.wait(3000)
+    await this.wait(6000)
     await this.report('cutterman ready')
     await super.ready()
   }
