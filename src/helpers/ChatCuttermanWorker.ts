@@ -58,6 +58,12 @@ export class ChatCuttermanWorker extends ChatWorker {
 
   public async question(text: string): Promise<void> {
     await this.page.waitForSelector(this.inputSelector)
+    // 去掉输入框的回车事件
+    await this.page.$eval(this.inputSelector, el => {
+      el.addEventListener('keydown', e => {
+        e.stopPropagation()
+      }, true)
+    })
     await this.page.type(this.inputSelector, text)
     // await this.page.$eval(this.inputSelector, (el, text) => {
     //   (el as any).value = text
