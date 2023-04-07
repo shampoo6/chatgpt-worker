@@ -28,6 +28,7 @@ export class WorkerProxy {
     this.eventHandlers[EventName.Error] = new Array<EventHandler>()
     this.eventHandlers[EventName.Exit] = new Array<EventHandler>()
     this.eventHandlers[EventName.Online] = new Array<EventHandler>()
+    this.eventHandlers[EventName.Ready] = new Array<EventHandler>()
     fsp.access(configFilePath)
       .then(() => import(configFilePath))
       .then(module => Promise.resolve(module.default))
