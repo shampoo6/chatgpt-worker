@@ -101,7 +101,11 @@ export class ChatCuttermanWorker extends ChatWorker {
       if (await this.page.$(this.sendBtnSelector)) {
         console.log('reply over')
         await this.reset()
-        parentPort.postMessage(WorkerMessage.build(WorkerMessageType.Answer, 'answer', AIChatMessage.end(text)))
+        // 获取html内容
+        const html = await this.page.$eval(this.replySelector, el => {
+          return el.innerHTML
+        })
+        parentPort.postMessage(WorkerMessage.build(WorkerMessageType.Answer, 'answer', AIChatMessage.end(text, html)))
         return
       }
       // 发送内容
