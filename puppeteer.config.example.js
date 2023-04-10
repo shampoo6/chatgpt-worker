@@ -8,5 +8,6 @@ module.exports = {
     // chatgpt 密码
     password: 'xxxxx',
     // 异常重试次数
-    retryCount: 3
-}
+    retryCount: 3,
+    headless: false
+};

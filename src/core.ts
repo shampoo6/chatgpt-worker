@@ -97,7 +97,7 @@ export abstract class ChatWorker {
     puppeteer.use(StealthPlugin());
     this.browser = await puppeteer.launch({
       executablePath: this.config.chromePath,
-      headless: false
+      headless: this.config.headless
     });
     await this.report('launch browser')
     const pages = await this.browser.pages();

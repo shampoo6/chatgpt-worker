@@ -26,5 +26,9 @@ export type PuppeteerConfig = {
   /**
    * 异常重试次数
    */
-  retryCount: number
+  retryCount: number,
+  /**
+   * 是否无头启动
+   */
+  headless: boolean
 }
