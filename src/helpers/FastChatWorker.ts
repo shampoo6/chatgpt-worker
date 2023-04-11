@@ -25,6 +25,7 @@ export class FastChatWorker extends ChatWorker {
       el.value = text
       el.dispatchEvent(new Event('input'))
     }, text)
+    await this.page.waitForSelector(this.sendBtnSelector)
     await this.page.click(this.sendBtnSelector)
   }
 
