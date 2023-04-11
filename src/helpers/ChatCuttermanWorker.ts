@@ -43,8 +43,9 @@ export class ChatCuttermanWorker extends ChatWorker {
   }
 
   protected async ready(): Promise<void> {
-    await this.wait(6000)
-    await this.report('cutterman ready')
+    await this.page.waitForSelector(this.inputSelector)
+    await this.page.waitForSelector(this.sendBtnSelector)
+    await this.wait(5000)
     await super.ready()
   }
 
@@ -58,7 +59,6 @@ export class ChatCuttermanWorker extends ChatWorker {
   }
 
   protected async chatLogic(text: string): Promise<void> {
-    await this.page.waitForSelector(this.inputSelector)
     // 去掉输入框的回车事件
     await this.page.$eval(this.inputSelector, el => {
       el.addEventListener('keydown', e => {
@@ -70,7 +70,6 @@ export class ChatCuttermanWorker extends ChatWorker {
     //   (el as any).value = text
     // }, text)
     await this.wait(1000);
-    await this.page.waitForSelector(this.sendBtnSelector)
     await this.page.click(this.sendBtnSelector)
     await this.wait(200);
     // 记录当前对话框个数，用于判断ai是否开始回复内容

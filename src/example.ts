@@ -1,5 +1,5 @@
 import express from 'express'
-import {EventName, WorkerProxy} from "./helpers/WorkerProxy";
+import {EventHandler, EventName, WorkerProxy} from "./helpers/WorkerProxy";
 import {log} from "./core";
 import path from "path";
 import process from "process";
@@ -19,9 +19,9 @@ app.get('/question', async (req, res) => {
   res.setHeader('Connection', 'keep-alive');
   res.flushHeaders();
   const {question} = req.query
-
+  let messageEventHandler: EventHandler
   // 绑定线程事件
-  wp.on(EventName.Message, (e: WorkerMessage) => {
+  wp.on(EventName.Message, messageEventHandler = (e: WorkerMessage) => {
     if (e.type === WorkerMessageType.Reply) {
       const data: AIChatMessage = e.data
       if (data.status === AIChatStatus.End) {
@@ -34,9 +34,11 @@ app.get('/question', async (req, res) => {
 
   // 前端请求中断
   res.on('close', async () => {
+    await wp.off(EventName.Message, messageEventHandler)
     await wp.refresh()
   })
 
+  await wp.waitForWorkerReady()
   await wp.chat(question as string)
 })
 

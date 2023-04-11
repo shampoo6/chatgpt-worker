@@ -16,6 +16,7 @@ export enum EventName {
 export class WorkerProxy {
   private worker: Worker
   private readonly eventHandlers: { [key: string]: EventHandler[] }
+  private isReady: boolean = false
 
   constructor() {
     this.eventHandlers = {}
@@ -63,6 +64,11 @@ export class WorkerProxy {
     this.on(EventName.Exit, e => {
       console.log(`worker exit code: ${e}`)
     })
+    let readyHandler: EventHandler
+    this.on(EventName.Ready, readyHandler = e => {
+      this.isReady = true
+      this.off(EventName.Ready, readyHandler)
+    })
   }
 
   public on(eventName: EventName, eventHandler: EventHandler): void {
@@ -91,5 +97,16 @@ export class WorkerProxy {
 
   public async exit() {
     this.worker.postMessage(WorkerMessage.build(WorkerMessageType.Exit))
+  }
+
+  public waitForWorkerReady(): Promise<void> {
+    return new Promise(r => {
+      const timer = setInterval(() => {
+        if (this.isReady) {
+          clearInterval(timer)
+          r()
+        }
+      }, 40)
+    })
   }
 }

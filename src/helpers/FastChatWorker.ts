@@ -11,6 +11,14 @@ export class FastChatWorker extends ChatWorker {
   private clearHistoryBtnSelector = '#component-17[disabled]'
   private sendBtnSelector = '#component-11'
 
+  protected async ready() {
+    await this.page.waitForSelector(this.inputSelector)
+    await this.page.waitForSelector(this.isStartReplySelector)
+    await this.page.waitForSelector(this.sendBtnSelector)
+    await this.wait(5000)
+    await super.ready()
+  }
+
   protected beforeReload(): Promise<void> {
     return Promise.resolve(undefined);
   }
@@ -20,12 +28,10 @@ export class FastChatWorker extends ChatWorker {
   }
 
   protected async chatLogic(text: string): Promise<void> {
-    await this.page.waitForSelector(this.inputSelector)
     await this.page.$eval(this.inputSelector, (el: HTMLTextAreaElement, text: string) => {
       el.value = text
       el.dispatchEvent(new Event('input'))
     }, text)
-    await this.page.waitForSelector(this.sendBtnSelector)
     await this.page.click(this.sendBtnSelector)
   }
 
