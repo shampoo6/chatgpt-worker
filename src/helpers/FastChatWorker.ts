@@ -9,6 +9,7 @@ export class FastChatWorker extends ChatWorker {
   private isStartReplySelector = '.svelte-zyxd38.margin'
   private replySelector = 'div[data-testid="bot"].latest'
   private clearHistoryBtnSelector = '#component-17[disabled]'
+  private sendBtnSelector = '#component-11'
 
   protected beforeReload(): Promise<void> {
     return Promise.resolve(undefined);
@@ -24,8 +25,7 @@ export class FastChatWorker extends ChatWorker {
       el.value = text
       el.dispatchEvent(new Event('input'))
     }, text)
-    await this.wait(1000)
-    await this.page.type(this.inputSelector, '\n')
+    await this.page.click(this.sendBtnSelector)
   }
 
   protected async receiveMessage(m: WorkerMessage): Promise<void> {
