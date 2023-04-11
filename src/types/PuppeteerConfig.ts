@@ -1,6 +1,7 @@
 export enum AIType {
   ChatGPT = 'ChatGPT',
-  ChatCutterman = 'ChatCutterman'
+  ChatCutterman = 'ChatCutterman',
+  FastChat = 'FastChat'
 }
 
 /**

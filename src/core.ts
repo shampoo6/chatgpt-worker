@@ -9,6 +9,7 @@ import path from "path";
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import {Browser, Page} from "puppeteer";
+import {AIChatMessage} from "./models/AIChatMessage";
 
 /**
  * worker 线程中运行的对象的抽象类
@@ -21,12 +22,14 @@ export abstract class ChatWorker {
   protected page: Page
   private currentRetryCount: number = 0
   protected cookiesPath: string = path.resolve(process.cwd(), 'cookies')
+  private timerId: NodeJS.Timer
+  private lastText: string = ''
 
   constructor() {
     parentPort.on('message', async (e: WorkerMessage) => {
       switch (e.type) {
         case WorkerMessageType.Refresh:
-          await this.beforeReload()
+          await this.superBeforeReload()
           await this.page.reload()
           break;
         case WorkerMessageType.Exit:
@@ -40,6 +43,11 @@ export abstract class ChatWorker {
     })
   }
 
+  /**
+   * 接收主线程的消息
+   * @param m 线程消息
+   * @protected
+   */
   protected abstract receiveMessage(m: WorkerMessage): Promise<void>;
 
   public async run(): Promise<void> {
@@ -52,6 +60,10 @@ export abstract class ChatWorker {
     }
   }
 
+  /**
+   * 读取配置
+   * @private
+   */
   private async readConfig(): Promise<void> {
     const configFilePath = path.resolve(process.cwd(), 'puppeteer.config.js')
     await this.report('start read config')
@@ -66,12 +78,20 @@ export abstract class ChatWorker {
     await this.report('read config complete')
   }
 
+  /**
+   * 主逻辑
+   * @private
+   */
   private async main(): Promise<void> {
     await this.init()
     await this.signIn()
     await this.ready()
   }
 
+  /**
+   * 重试流程
+   * @protected
+   */
   protected async retry() {
     if (this.currentRetryCount >= this.config.retryCount) {
       // 异常中断 应该在主线程监听 exit 事件并作出处理
@@ -81,17 +101,46 @@ export abstract class ChatWorker {
 
     await this.report('retry')
     this.currentRetryCount++
-    await this.beforeRetry()
+    await this.superBeforeRetry()
     // 关闭浏览器
     this.browser && await this.browser.close()
     await this.report('close browser, ready to call main again')
     await this.main()
   }
 
+  protected async reset() {
+    clearInterval(this.timerId)
+    this.timerId = null
+    this.lastText = ''
+  }
+
+  private async superBeforeRetry() {
+    await this.reset()
+    await this.beforeRetry()
+  }
+
+
+  /**
+   * 重试前操作
+   * @protected
+   */
   protected abstract beforeRetry(): Promise<void>;
 
+  private async superBeforeReload() {
+    await this.reset()
+    await this.beforeReload()
+  }
+
+  /**
+   * 刷新页面前
+   * @protected
+   */
   protected abstract beforeReload(): Promise<void>;
 
+  /**
+   * 初始化浏览器
+   * @protected
+   */
   protected async init(): Promise<void> {
     await this.report('start init puppeteer')
     puppeteer.use(StealthPlugin());
@@ -109,20 +158,45 @@ export abstract class ChatWorker {
     await this.page.goto(this.url);
   }
 
+  /**
+   * 登录
+   * @protected
+   */
   protected abstract signIn(): Promise<void>;
 
+  /**
+   * 准备就绪
+   * 在接收消息前的一些操作写在这里
+   * @protected
+   */
   protected async ready(): Promise<void> {
+    await this.report('ready')
     parentPort.postMessage(WorkerMessage.build(WorkerMessageType.Ready))
   }
 
+  /**
+   * 发送报告给主线程
+   * @param message
+   * @protected
+   */
   protected async report(message: string): Promise<void> {
     await report(message, this.name)
   }
 
+  /**
+   * 发送异常报告给主线程
+   * @param message
+   * @param e
+   * @protected
+   */
   protected async reportError(message: string, e: Error): Promise<void> {
     await reportError(message, e, this.name)
   }
 
+  /**
+   * 读取cookies缓存
+   * @protected
+   */
   protected async readCookies(): Promise<boolean> {
     try {
       await fsp.access(this.cookiesPath)
@@ -135,15 +209,84 @@ export abstract class ChatWorker {
     }
   }
 
+  /**
+   * 保存cookies
+   * @protected
+   */
   protected async saveCookies() {
     const cookies = await this.page.cookies()
     await fsp.writeFile(this.cookiesPath, JSON.stringify(cookies))
   }
 
-  public abstract question(text: string): Promise<void>;
+  /**
+   * 聊天
+   * @param text 聊天的文本
+   */
+  public async chat(text: string): Promise<void> {
+    await this.chatLogic(text)
+    await this.wait(100)
+    await this.startListenResult()
+  }
 
-  public abstract answer(): Promise<void>;
+  protected abstract chatLogic(text: string): Promise<void>;
 
+  /**
+   * 开始监听AI的返回结果
+   * @protected
+   */
+  protected async startListenResult() {
+    this.timerId = setInterval(async () => {
+      // 判断ai是否开始作答
+      if (!(await this.isStartReply())) return
+
+      // 获取内容
+      let text = await this.getReplyText()
+      const isFirstReply = this.lastText === ''
+      // 比较内容
+      const apd = text.slice(this.lastText.length)
+      this.lastText = text
+
+      // 判断是否结束
+      if (await this.isReplyOver()) {
+        await this.reset()
+        const html = await this.getReplyHtml()
+        parentPort.postMessage(WorkerMessage.build(WorkerMessageType.Reply, 'answer', AIChatMessage.end(text, html)))
+      }
+
+      // 发送内容
+      parentPort.postMessage(WorkerMessage.build(WorkerMessageType.Reply, 'answer', isFirstReply ? AIChatMessage.start(text) : AIChatMessage.replying(apd, text)))
+    }, 40)
+  }
+
+  /**
+   * 是否AI回复结束
+   * @protected
+   */
+  protected abstract isReplyOver(): Promise<boolean>
+
+  /**
+   * 获取AI回复的文本
+   * @protected
+   */
+  protected abstract getReplyText(): Promise<string>
+
+  /**
+   * 获取AI回复内容的html代码
+   * @protected
+   */
+  protected abstract getReplyHtml(): Promise<string>
+
+  /**
+   * AI是否开始回复
+   * @protected
+   */
+  protected abstract isStartReply(): Promise<boolean>
+
+  /**
+   * 等待
+   * @param time
+   * @protected
+   */
   protected wait(time: number): Promise<void> {
     return new Promise(r => {
       setTimeout(r, time)
@@ -165,10 +308,10 @@ export async function error(str: string, who?: string): Promise<void> {
 
 export async function report(message: string, who?: string): Promise<void> {
   message = await logStr(message, who)
-  parentPort.postMessage(JSON.stringify(WorkerMessage.build(WorkerMessageType.Report, message)))
+  parentPort.postMessage(WorkerMessage.build(WorkerMessageType.Report, message))
 }
 
 export async function reportError(message: string, e: Error, who?: string): Promise<void> {
   message = await logStr(message, who)
-  parentPort.postMessage(JSON.stringify(WorkerMessage.build(WorkerMessageType.Error, message, e)))
+  parentPort.postMessage(WorkerMessage.build(WorkerMessageType.Error, message, e))
 }

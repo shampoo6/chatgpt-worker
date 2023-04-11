@@ -33,8 +33,13 @@
             console.log('value.toString()', new TextDecoder().decode(value));
             console.log('done: ', done);
 
-            if (value)
-                output.value = JSON.parse(new TextDecoder().decode(value)).content;
+            try {
+                if (value)
+                    output.value = JSON.parse(new TextDecoder().decode(value)).content;
+            } catch (e) {
+                console.log(e);
+                console.log(value);
+            }
         } while (!r.done);
     }
 </script>

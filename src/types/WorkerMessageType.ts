@@ -16,13 +16,13 @@ export enum WorkerMessageType {
    */
   Error,
   /**
-   * 提问
+   * 聊天
    */
-  Question,
+  Chat,
   /**
-   * 回答
+   * 回复
    */
-  Answer,
+  Reply,
   /**
    * 刷新页面
    */
