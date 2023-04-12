@@ -80,7 +80,8 @@ export class WorkerProxy {
   public off(eventName: EventName, eventHandler?: EventHandler): void {
     if (eventHandler) {
       const i = this.eventHandlers[eventName].findIndex(item => item === eventHandler)
-      this.eventHandlers[eventName].splice(i, 1)
+      if (i > -1)
+        this.eventHandlers[eventName].splice(i, 1)
       return
     }
     this.eventHandlers[eventName].splice(0, this.eventHandlers[eventName].length)
