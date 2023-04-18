@@ -5,6 +5,7 @@ import {AIType, PuppeteerConfig} from "../types/PuppeteerConfig";
 import {ChatWorker} from "../core";
 import {ChatCuttermanWorker} from "../helpers/ChatCuttermanWorker";
 import {FastChatWorker} from "../helpers/FastChatWorker";
+import {ChatGPTWorker} from "../helpers/ChatGPTWorker";
 
 const configFilePath = path.resolve(process.cwd(), 'puppeteer.config.js');
 
@@ -18,6 +19,8 @@ let chatWorker: ChatWorker
     // 创建chatWorker对象
     switch (config.aiType) {
       case AIType.ChatGPT:
+        chatWorker = new ChatGPTWorker()
+        break;
       case AIType.FastChat:
         chatWorker = new FastChatWorker()
         break;

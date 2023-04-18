@@ -6,11 +6,11 @@
 </head>
 <body>
 <textarea id="input" rows="4">
-你认为下一届美国总统会是特朗普还是拜登
+请你随机抄写一首诗仙李白《将进酒》以外的作品
 </textarea>
 <button onclick="send()">发送</button>
 <br/>
-<textarea id="output" rows="4"></textarea>
+<div id="output" style="padding: 16px; width: 400px;"></div>
 </body>
 <script>
     const input = document.querySelector('#input');
@@ -34,8 +34,10 @@
             console.log('done: ', done);
 
             try {
-                if (value)
-                    output.value = JSON.parse(new TextDecoder().decode(value)).content;
+                if (value) {
+                    const json = JSON.parse(new TextDecoder().decode(value));
+                    output.innerHTML = json.html || json.content;
+                }
             } catch (e) {
                 console.log(e);
                 console.log(value);

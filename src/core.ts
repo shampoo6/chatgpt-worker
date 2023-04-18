@@ -29,8 +29,7 @@ export abstract class ChatWorker {
     parentPort.on('message', async (e: WorkerMessage) => {
       switch (e.type) {
         case WorkerMessageType.Refresh:
-          await this.superBeforeReload()
-          await this.page.reload()
+          await this.reload()
           break;
         case WorkerMessageType.Exit:
           await this.page.close()
@@ -41,6 +40,17 @@ export abstract class ChatWorker {
           break;
       }
     })
+  }
+
+  /**
+   * 刷新页面
+   * @protected
+   */
+  protected async reload() {
+    await this.superBeforeReload()
+    await this.page.reload()
+    // 重新执行ready方法保证能在刷新后接收消息
+    await this.ready()
   }
 
   /**
@@ -237,25 +247,33 @@ export abstract class ChatWorker {
   protected async startListenResult() {
     this.timerId = setInterval(async () => {
       // 判断ai是否开始作答
-      if (!(await this.isStartReply())) return
-
-      // 获取内容
-      let text = await this.getReplyText()
-      const isFirstReply = this.lastText === ''
-      // 比较内容
-      const apd = text.slice(this.lastText.length)
-      this.lastText = text
-
-      // 判断是否结束
-      if (await this.isReplyOver()) {
-        await this.reset()
-        const html = await this.getReplyHtml()
-        parentPort.postMessage(WorkerMessage.build(WorkerMessageType.Reply, 'answer', AIChatMessage.end(text, html)))
+      if (await this.isStartReply()) {
+        clearInterval(this.timerId)
+        listener()
       }
-
-      // 发送内容
-      parentPort.postMessage(WorkerMessage.build(WorkerMessageType.Reply, 'answer', isFirstReply ? AIChatMessage.start(text) : AIChatMessage.replying(apd, text)))
     }, 40)
+
+    const listener = () => {
+      this.timerId = setInterval(async () => {
+        // 获取内容
+        let text = await this.getReplyText()
+        const isFirstReply = this.lastText === ''
+        // 比较内容
+        const apd = text.slice(this.lastText.length)
+        this.lastText = text
+
+        // 判断是否结束
+        if (await this.isReplyOver()) {
+          await this.reset()
+          const html = await this.getReplyHtml()
+          parentPort.postMessage(WorkerMessage.build(WorkerMessageType.Reply, 'answer', AIChatMessage.end(text, html)))
+          return
+        }
+
+        // 发送内容
+        parentPort.postMessage(WorkerMessage.build(WorkerMessageType.Reply, 'answer', isFirstReply ? AIChatMessage.start(text) : AIChatMessage.replying(apd, text)))
+      }, 40)
+    }
   }
 
   /**

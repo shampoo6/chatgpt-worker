@@ -2,8 +2,6 @@ import {ChatWorker} from "../core";
 import fsp from 'fs/promises'
 import {WorkerMessage} from "../models/WorkerMessage";
 import {WorkerMessageType} from "../types/WorkerMessageType";
-import {parentPort} from "node:worker_threads";
-import {AIChatMessage} from "../models/AIChatMessage";
 
 export class ChatCuttermanWorker extends ChatWorker {
   name: string = 'ChatCuttermanWorker';

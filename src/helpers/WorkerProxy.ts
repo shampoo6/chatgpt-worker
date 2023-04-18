@@ -64,11 +64,7 @@ export class WorkerProxy {
     this.on(EventName.Exit, e => {
       console.log(`worker exit code: ${e}`)
     })
-    let readyHandler: EventHandler
-    this.on(EventName.Ready, readyHandler = e => {
-      this.isReady = true
-      this.off(EventName.Ready, readyHandler)
-    })
+    this.listenWorkerReady()
   }
 
   public on(eventName: EventName, eventHandler: EventHandler): void {
@@ -93,11 +89,22 @@ export class WorkerProxy {
 
   // 刷新页面
   public async refresh() {
+    // 刷新后应该重置 ready 状态
+    this.isReady = false
+    this.listenWorkerReady()
     this.worker.postMessage(WorkerMessage.build(WorkerMessageType.Refresh))
   }
 
   public async exit() {
     this.worker.postMessage(WorkerMessage.build(WorkerMessageType.Exit))
+  }
+
+  private listenWorkerReady() {
+    let readyHandler: EventHandler
+    this.on(EventName.Ready, readyHandler = e => {
+      this.isReady = true
+      this.off(EventName.Ready, readyHandler)
+    })
   }
 
   public waitForWorkerReady(): Promise<void> {

@@ -20,6 +20,7 @@ app.get('/question', async (req, res) => {
   res.flushHeaders();
   const {question} = req.query
   let messageEventHandler: EventHandler
+  let errorHandler: EventHandler
   // 绑定线程事件
   wp.on(EventName.Message, messageEventHandler = (e: WorkerMessage) => {
     if (e.type === WorkerMessageType.Reply) {
@@ -32,9 +33,19 @@ app.get('/question', async (req, res) => {
     }
   })
 
+  wp.on(EventName.Error, errorHandler = async e => {
+    console.error('receive error')
+    console.error(e)
+    // await wp.refresh()
+    // await wp.waitForWorkerReady()
+    // // 异常重试
+    // await wp.chat(question as string)
+  })
+
   // 前端请求中断
   res.on('close', async () => {
     await wp.off(EventName.Message, messageEventHandler)
+    await wp.off(EventName.Error, errorHandler)
     await wp.refresh()
   })
 
