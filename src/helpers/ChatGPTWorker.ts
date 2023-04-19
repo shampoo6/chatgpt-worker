@@ -158,10 +158,13 @@ export class ChatGPTWorker extends ChatWorker {
     await this.page.waitForSelector(this.sendBtnSelector)
     // 登录成功 保存 cookies
     await this.saveCookies()
-    await this.page.waitForSelector(this.coverSelector)
-    await this.page.$eval(this.coverSelector, el => {
-      el.remove()
-    })
+    try {
+      await this.page.waitForSelector(this.coverSelector)
+      await this.page.$eval(this.coverSelector, el => {
+        el.remove()
+      })
+    } catch (e) {
+    }
     await super.ready()
   }
 
