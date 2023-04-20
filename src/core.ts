@@ -154,10 +154,13 @@ export abstract class ChatWorker {
   protected async init(): Promise<void> {
     await this.report('start init puppeteer')
     puppeteer.use(StealthPlugin());
-    this.browser = await puppeteer.launch({
-      executablePath: this.config.chromePath,
+    const option: Record<string, any> = {
+      // executablePath: this.config.chromePath,
       headless: this.config.headless
-    });
+    }
+    if (typeof this.config.chromePath === 'string')
+      option['executablePath'] = this.config.chromePath
+    this.browser = await puppeteer.launch(option);
     await this.report('launch browser')
     const pages = await this.browser.pages();
     this.page = pages[0];
