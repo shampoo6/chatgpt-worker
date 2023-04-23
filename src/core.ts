@@ -118,14 +118,14 @@ export abstract class ChatWorker {
     await this.main()
   }
 
-  protected async reset() {
+  protected reset() {
     clearInterval(this.timerId)
     this.timerId = null
     this.lastText = ''
   }
 
   private async superBeforeRetry() {
-    await this.reset()
+    this.reset()
     await this.beforeRetry()
   }
 
@@ -137,7 +137,7 @@ export abstract class ChatWorker {
   protected abstract beforeRetry(): Promise<void>;
 
   private async superBeforeReload() {
-    await this.reset()
+    this.reset()
     await this.beforeReload()
   }
 
@@ -267,7 +267,7 @@ export abstract class ChatWorker {
 
         // 判断是否结束
         if (await this.isReplyOver()) {
-          await this.reset()
+          this.reset()
           const html = await this.getReplyHtml()
           parentPort.postMessage(WorkerMessage.build(WorkerMessageType.Reply, 'answer', AIChatMessage.end(text, html)))
           return
