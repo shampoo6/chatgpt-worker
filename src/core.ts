@@ -24,6 +24,9 @@ export abstract class ChatWorker {
   protected cookiesPath: string = path.resolve(process.cwd(), 'cookies')
   private timerId: NodeJS.Timer
   private lastText: string = ''
+  // 用于指示是否回复结束的flag
+  // 不能再 reset 方法中重置，只能在每次开始回复时重置
+  private over: boolean = false
 
   constructor() {
     parentPort.on('message', async (e: WorkerMessage) => {
@@ -257,6 +260,7 @@ export abstract class ChatWorker {
     }, 40)
 
     const listener = () => {
+      this.over = false
       this.timerId = setInterval(async () => {
         // 获取内容
         let text = await this.getReplyText()
@@ -266,7 +270,8 @@ export abstract class ChatWorker {
         this.lastText = text
 
         // 判断是否结束
-        if (await this.isReplyOver()) {
+        if (await this.isReplyOver() && !this.over) {
+          this.over = true
           this.reset()
           const html = await this.getReplyHtml()
           parentPort.postMessage(WorkerMessage.build(WorkerMessageType.Reply, 'answer', AIChatMessage.end(text, html)))
