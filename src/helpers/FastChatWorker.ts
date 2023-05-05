@@ -6,14 +6,14 @@ export class FastChatWorker extends ChatWorker {
   name: string = 'FastChatWorker';
   url: string = 'https://chat.lmsys.org/';
   private inputSelector: string = 'textarea[placeholder="Enter text and press ENTER"]'
-  private isStartReplySelector = '.svelte-zyxd38.margin'
+  private isStartReplySelector = '.svelte-zyxd38'
   private replySelector = 'div[data-testid="bot"].latest'
   private clearHistoryBtnSelector = '#component-17[disabled]'
-  private sendBtnSelector = '#component-11'
+  private sendBtnSelector = '#component-13'
 
   protected async ready() {
     await this.page.waitForSelector(this.inputSelector)
-    await this.page.waitForSelector(this.isStartReplySelector)
+    // await this.page.waitForSelector(this.isStartReplySelector)
     await this.page.waitForSelector(this.sendBtnSelector)
     await this.wait(5000)
     await super.ready()
@@ -58,10 +58,13 @@ export class FastChatWorker extends ChatWorker {
   }
 
   protected async getReplyText(): Promise<string> {
+    console.log('get reply text')
     await this.page.waitForSelector(this.replySelector)
-    return await this.page.$eval(this.replySelector, el => {
+    const text = await this.page.$eval(this.replySelector, el => {
       return el.textContent
     })
+    console.log(text)
+    return text
   }
 
   protected async isReplyOver(): Promise<boolean> {
