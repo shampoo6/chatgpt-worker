@@ -102,9 +102,11 @@ export class ChatGPTWorker extends ChatWorker {
   protected async signIn(): Promise<void> {
     await this.report('login start')
     if (await this.readCookies()) {
+      await this.report('read cookies success')
       try {
         await Promise.all([
-          this.wait(3000),
+          // this.wait(3000),
+          this.page.goto(this.url),
           this.page.waitForNavigation({timeout: 10000})
         ])
 
@@ -120,8 +122,12 @@ export class ChatGPTWorker extends ChatWorker {
         await this.report('login end')
         return
       } catch (e) {
+        // cookie 过期，继续后续流程
+        await this.report('cookies expired')
       }
     }
+
+    await this.report('read cookies fail')
 
     // 点击第一个登录按钮
     await this.page.waitForSelector(this.loginBtnSelector)
