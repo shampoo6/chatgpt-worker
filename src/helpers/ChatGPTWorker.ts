@@ -9,8 +9,8 @@ export class ChatGPTWorker extends ChatWorker {
   private emailInputSelector = '#username'
   private continueBtnSelector = 'button[type="submit"]'
   private pwdInputSelector = '#password'
-  // private coverSelector = '#headlessui-portal-root'
-  private coverSelector = '.absolute.inset-0'
+  private coverSelector = '#headlessui-portal-root'
+  private nextBtnSelector = 'button[as="button"]:last-child'
   private textareaSelector = 'textarea'
   private sendBtnSelector = '.absolute.p-1.rounded-md.text-gray-500'
   private sendBtnSvgSelector = '.absolute.p-1.rounded-md.text-gray-500>svg'
@@ -166,10 +166,17 @@ export class ChatGPTWorker extends ChatWorker {
     // 登录成功 保存 cookies
     await this.saveCookies()
     try {
-      await this.page.waitForSelector(this.coverSelector)
-      await this.page.$eval(this.coverSelector, el => {
-        el.remove()
-      })
+      // await this.page.waitForSelector(this.coverSelector)
+      // await this.page.$eval(this.coverSelector, el => {
+      //   el.remove()
+      // })
+      await this.page.waitForSelector(this.nextBtnSelector)
+      await this.page.click(this.nextBtnSelector)
+      await this.wait(200)
+      await this.page.click(this.nextBtnSelector)
+      await this.wait(200)
+      await this.page.click(this.nextBtnSelector)
+      await this.wait(200)
     } catch (e) {
     }
     await super.ready()
