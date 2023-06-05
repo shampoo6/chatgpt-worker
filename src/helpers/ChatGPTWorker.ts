@@ -12,8 +12,8 @@ export class ChatGPTWorker extends ChatWorker {
   private coverSelector = '#headlessui-portal-root'
   private nextBtnSelector = 'button[as="button"]:last-child'
   private textareaSelector = 'textarea'
-  private sendBtnSelector = '.absolute.p-1.rounded-md.text-gray-500'
-  private sendBtnSvgSelector = '.absolute.p-1.rounded-md.text-gray-500>svg'
+  private sendBtnSelector = '.absolute.p-1.rounded-md.text-white'
+  private sendBtnSvgSelector = '.absolute.p-1.rounded-md.text-white svg'
   private messageSelector = '.group.w-full'
   // 回复中的元素
   private resultStreamDivSelector = '.result-streaming'
@@ -165,11 +165,10 @@ export class ChatGPTWorker extends ChatWorker {
     await this.page.waitForSelector(this.sendBtnSelector)
     // 登录成功 保存 cookies
     await this.saveCookies()
-    try {
-      // await this.page.waitForSelector(this.coverSelector)
-      // await this.page.$eval(this.coverSelector, el => {
-      //   el.remove()
-      // })
+    await this.wait(1000)
+
+    // 如果存在教学向导
+    if (await this.page.$(this.nextBtnSelector) !== null) {
       await this.page.waitForSelector(this.nextBtnSelector)
       await this.page.click(this.nextBtnSelector)
       await this.wait(200)
@@ -177,8 +176,8 @@ export class ChatGPTWorker extends ChatWorker {
       await this.wait(200)
       await this.page.click(this.nextBtnSelector)
       await this.wait(200)
-    } catch (e) {
     }
+
     await super.ready()
   }
 
