@@ -8,6 +8,7 @@ export class ChatGPTWorker extends ChatWorker {
   private loginBtnSelector = '.btn.relative.btn-primary'
   private emailInputSelector = '#username'
   private continueBtnSelector = 'button[type="submit"]'
+  private pwdContinueBtnSelector = '._button-login-password'
   private pwdInputSelector = '#password'
   private coverSelector = '#headlessui-portal-root'
   private nextBtnSelector = 'button[as="button"]:last-child'
@@ -150,10 +151,10 @@ export class ChatGPTWorker extends ChatWorker {
     await this.page.waitForSelector(this.pwdInputSelector)
     await this.wait(2000)
     await this.page.type(this.pwdInputSelector, this.config.password)
-    await this.page.waitForSelector(this.continueBtnSelector)
+    await this.page.waitForSelector(this.pwdContinueBtnSelector)
     await Promise.all([
       this.page.waitForNavigation(),
-      this.page.click(this.continueBtnSelector)
+      this.page.click(this.pwdContinueBtnSelector)
     ])
     await this.report('login end')
   }
