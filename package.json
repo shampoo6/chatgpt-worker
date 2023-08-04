@@ -1,6 +1,6 @@
 {
   "name": "chatgpt-worker",
-  "version": "0.2.10",
+  "version": "0.2.11",
   "description": "one proxy for request ai site",
   "main": "dist/index.js",
   "types": "lib/index.d.ts",
