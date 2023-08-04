@@ -11,7 +11,7 @@ export class ChatGPTWorker extends ChatWorker {
   private pwdContinueBtnSelector = '._button-login-password'
   private pwdInputSelector = '#password'
   private coverSelector = '#headlessui-portal-root'
-  private nextBtnSelector = 'button[as="button"]:last-child'
+  private nextBtnSelector = 'div[role="dialog"] button:last-child'
   private textareaSelector = 'textarea'
   private sendBtnSelector = '.absolute.p-1.rounded-md.text-white'
   private sendBtnSvgSelector = '.absolute.p-1.rounded-md.text-white svg'
