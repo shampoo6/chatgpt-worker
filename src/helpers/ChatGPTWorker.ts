@@ -5,7 +5,7 @@ import {WorkerMessageType} from "../types/WorkerMessageType";
 export class ChatGPTWorker extends ChatWorker {
   name: string = 'ChatGPTWorker';
   url: string = 'https://chat.openai.com/';
-  private loginBtnSelector = '.btn.relative.btn-primary'
+  private loginBtnSelector = 'button'
   private emailInputSelector = '#username'
   private continueBtnSelector = 'button[type="submit"]'
   private pwdContinueBtnSelector = '._button-login-password'
