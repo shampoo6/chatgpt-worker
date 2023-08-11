@@ -10,7 +10,7 @@ export class ChatGPTWorker extends ChatWorker {
   private continueBtnSelector = 'button[type="submit"]'
   private pwdContinueBtnSelector = '._button-login-password'
   private pwdInputSelector = '#password'
-  private coverSelector = '#headlessui-portal-root'
+  private coverSelector = '.absolute.inset-0'
   private nextBtnSelector = 'div[role="dialog"] button:last-child'
   private textareaSelector = 'textarea'
   private sendBtnSelector = '.absolute.p-1.rounded-md.text-white'
@@ -40,7 +40,10 @@ export class ChatGPTWorker extends ChatWorker {
       el.value = text
     }, text)
     await this.page.type(this.textareaSelector, ' ')
-    await this.page.click(this.sendBtnSelector)
+    // await this.page.click(this.sendBtnSelector)
+    await this.page.$eval(this.sendBtnSelector, (el: HTMLButtonElement) => {
+      el.click()
+    })
   }
 
   protected async getReplyHtml(): Promise<string> {
@@ -171,12 +174,15 @@ export class ChatGPTWorker extends ChatWorker {
     // 如果存在教学向导
     if (await this.page.$(this.nextBtnSelector) !== null) {
       await this.page.waitForSelector(this.nextBtnSelector)
-      await this.page.click(this.nextBtnSelector)
-      await this.wait(200)
-      await this.page.click(this.nextBtnSelector)
-      await this.wait(200)
-      await this.page.click(this.nextBtnSelector)
-      await this.wait(200)
+      // await this.page.click(this.nextBtnSelector)
+      // await this.wait(200)
+      // await this.page.click(this.nextBtnSelector)
+      // await this.wait(200)
+      // await this.page.click(this.nextBtnSelector)
+      // await this.wait(200)
+      await this.page.$eval(this.coverSelector, el => {
+        el.remove()
+      })
     }
 
     await super.ready()
