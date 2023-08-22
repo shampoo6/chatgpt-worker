@@ -264,6 +264,9 @@ export abstract class ChatWorker {
       this.timerId = setInterval(async () => {
         // 获取内容
         let text = await this.getReplyText()
+        // 输出内容到终端
+        process.stdout.write('\x1B[2J\x1B[0f');
+        console.log(text)
         const isFirstReply = this.lastText === ''
         // 比较内容
         const apd = text.slice(this.lastText.length)

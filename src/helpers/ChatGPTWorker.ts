@@ -62,32 +62,25 @@ export class ChatGPTWorker extends ChatWorker {
   }
 
   protected async getReplyText(): Promise<string> {
-    const text = await read.call(this)
-    process.stdout.write('\x1B[2J\x1B[0f');
-    console.log(text)
-    return text
-
-    async function read() {
-      // 判断是否出现ChatGPT红色异常
-      if (await this.page.$(this.errorDivSelector)) {
-        // await this.reportError('ChatGPT error', new Error('ChatGPT error'))
-        await this.reload()
-        return ''
-      }
-
-      try {
-        return await this.page.$eval(this.resultStreamDivSelector, (el: any) => {
-          return el.textContent
-        })
-      } catch (e) {
-      }
-
-      return await this.page.$$eval(this.messageSelector, (els: any) => {
-        if (els.length === 0) return ''
-        let tmp = els[els.length - 1].querySelector('.markdown')
-        return tmp ? tmp.textContent : ''
-      })
+    // 判断是否出现ChatGPT红色异常
+    if (await this.page.$(this.errorDivSelector)) {
+      // await this.reportError('ChatGPT error', new Error('ChatGPT error'))
+      await this.reload()
+      return ''
     }
+
+    try {
+      return await this.page.$eval(this.resultStreamDivSelector, (el: any) => {
+        return el.textContent
+      })
+    } catch (e) {
+    }
+
+    return await this.page.$$eval(this.messageSelector, (els: any) => {
+      if (els.length === 0) return ''
+      let tmp = els[els.length - 1].querySelector('.markdown')
+      return tmp ? tmp.textContent : ''
+    })
   }
 
   protected async isReplyOver(): Promise<boolean> {
