@@ -13,7 +13,7 @@ export class ChatGPTWorker extends ChatWorker {
   private coverSelector = '.absolute.inset-0'
   private nextBtnSelector = 'div[role="dialog"] button:last-child'
   private textareaSelector = 'textarea'
-  private sendBtnSelector = '.absolute.p-1.rounded-md.text-white'
+  private sendBtnSelector = '.absolute.md\\:bottom-3.md\\:right-3.dark\\:hover\\:bg-gray-900'
   private sendBtnSvgSelector = '.absolute.p-1.rounded-md.text-white svg'
   private messageSelector = '.group.w-full'
   // 回复中的元素
