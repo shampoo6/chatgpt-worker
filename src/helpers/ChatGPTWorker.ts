@@ -16,7 +16,7 @@ export class ChatGPTWorker extends ChatWorker {
   private sendBtnSelector = '.absolute.md\\:bottom-3.md\\:right-3.dark\\:hover\\:bg-gray-900'
   // private sendBtnSvgSelector = '.absolute.p-1.rounded-md.text-white svg'
   private sendBtnSvgSelector = '.absolute.md\\:bottom-3.md\\:right-3.dark\\:hover\\:bg-gray-900 svg'
-  private messageSelector = '.group.w-full'
+  private messageSelector = '.flex.flex-grow.flex-col.max-w-full'
   // 回复中的元素
   private resultStreamDivSelector = '.result-streaming'
   // 异常提示div元素
