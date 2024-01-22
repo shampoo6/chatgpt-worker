@@ -16,7 +16,7 @@ export class ChatGPTWorker extends ChatWorker {
   private sendBtnSelector = '.absolute.md\\:bottom-3.md\\:right-3.dark\\:hover\\:bg-gray-900'
   // private sendBtnSvgSelector = '.absolute.p-1.rounded-md.text-white svg'
   private sendBtnSvgSelector = '.absolute.md\\:bottom-3.md\\:right-3.dark\\:hover\\:bg-gray-900 svg'
-  private messageSelector = '.flex.flex-grow.flex-col.max-w-full'
+  private messageSelector = '.markdown'
   // 回复中的元素
   private resultStreamDivSelector = '.result-streaming'
   // 异常提示div元素
@@ -57,7 +57,7 @@ export class ChatGPTWorker extends ChatWorker {
 
     return await this.page.$$eval(this.messageSelector, (els) => {
       if (els.length === 0) return ''
-      let tmp = els[els.length - 1].querySelector('.markdown')
+      let tmp = els[els.length - 1]
       return tmp ? tmp.innerHTML : ''
     })
   }
@@ -79,7 +79,7 @@ export class ChatGPTWorker extends ChatWorker {
 
     return await this.page.$$eval(this.messageSelector, (els: any) => {
       if (els.length === 0) return ''
-      let tmp = els[els.length - 1].querySelector('.markdown')
+      let tmp = els[els.length - 1]
       return tmp ? tmp.textContent : ''
     })
   }
