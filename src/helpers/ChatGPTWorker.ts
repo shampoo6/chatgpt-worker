@@ -14,7 +14,8 @@ export class ChatGPTWorker extends ChatWorker {
   private nextBtnSelector = 'div[role="dialog"] button:last-child'
   private textareaSelector = 'textarea'
   private sendBtnSelector = '.absolute.bg-black.md\\:bottom-3.md\\:right-3.dark\\:hover\\:bg-white.right-2.disabled\\:opacity-10.disabled\\:text-gray-400.enabled\\:bg-black.text-white.border.border-black.rounded-lg.dark\\:border-white.dark\\:bg-white.bottom-1\\.5.transition-colors'
-  private sendBtnSvgSelector = '.absolute.md\\:bottom-3.md\\:right-3.dark\\:hover\\:bg-gray-900 svg'
+  // private sendBtnSvgSelector = '.absolute.md\\:bottom-3.md\\:right-3.dark\\:hover\\:bg-gray-900 svg'
+  private sendBtnSvgSelector = '.absolute.bg-black.md\\:bottom-3.md\\:right-3.dark\\:hover\\:bg-white.right-2.disabled\\:opacity-10.disabled\\:text-gray-400.enabled\\:bg-black.text-white.border.border-black.rounded-lg.dark\\:border-white.dark\\:bg-white.bottom-1\\.5.transition-colors'
   private messageSelector = '.markdown'
   // 回复中的元素
   private resultStreamDivSelector = '.result-streaming'
