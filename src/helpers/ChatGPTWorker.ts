@@ -6,14 +6,14 @@ export class ChatGPTWorker extends ChatWorker {
   name: string = 'ChatGPTWorker';
   url: string = 'https://chat.openai.com/';
   private loginBtnSelector = 'button'
-  private emailInputSelector = '#username'
-  private continueBtnSelector = 'button[type="submit"]'
-  private pwdContinueBtnSelector = '._button-login-password'
+  private emailInputSelector = '#email-input'
+  private continueBtnSelector = '.continue-btn'
+  private pwdContinueBtnSelector = 'button[type="submit"]'
   private pwdInputSelector = '#password'
   private coverSelector = '.absolute.inset-0'
   private nextBtnSelector = 'div[role="dialog"] button:last-child'
-  private textareaSelector = 'textarea'
-  private sendBtnSelector = '.absolute.bg-black.md\\:bottom-3.md\\:right-3.dark\\:hover\\:bg-white.right-2.disabled\\:opacity-10.disabled\\:text-gray-400.enabled\\:bg-black.text-white.border.border-black.rounded-lg.dark\\:border-white.dark\\:bg-white.bottom-1\\.5.transition-colors'
+  private textareaSelector = '#prompt-textarea'
+  private sendBtnSelector = 'form .flex.items-end>button'
   // private sendBtnSvgSelector = '.absolute.md\\:bottom-3.md\\:right-3.dark\\:hover\\:bg-gray-900 svg'
   private sendBtnSvgSelector = '.absolute.bg-black.md\\:bottom-3.md\\:right-3.dark\\:hover\\:bg-white.right-2.disabled\\:opacity-10.disabled\\:text-gray-400.enabled\\:bg-black.text-white.border.border-black.rounded-lg.dark\\:border-white.dark\\:bg-white.bottom-1\\.5.transition-colors'
   private messageSelector = '.markdown'
@@ -117,14 +117,14 @@ export class ChatGPTWorker extends ChatWorker {
         ])
 
         // 有可能需要验证是否是机器人
-        if (await this.page.$(this.humanCheckSelector)) {
-          // 等待 confirm
-          // 因为需要手动验证，超时时间写长点
-          await this.page.waitForNavigation({timeout: 30000})
-        }
+        // if (await this.page.$(this.humanCheckSelector)) {
+        //   // 等待 confirm
+        //   // 因为需要手动验证，超时时间写长点
+        //   await this.page.waitForNavigation({timeout: 30000})
+        // }
 
-        await this.page.waitForSelector(this.textareaSelector, {timeout: 1000})
-        await this.page.waitForSelector(this.sendBtnSelector, {timeout: 1000})
+        // await this.page.waitForSelector(this.textareaSelector, {timeout: 1000})
+        // await this.page.waitForSelector(this.sendBtnSelector, {timeout: 1000})
         await this.report('login end')
         return
       } catch (e) {
@@ -166,25 +166,25 @@ export class ChatGPTWorker extends ChatWorker {
   protected async ready(): Promise<void> {
     await this.report('ready start')
     await this.wait(5000)
-    await this.page.waitForSelector(this.textareaSelector)
-    await this.page.waitForSelector(this.sendBtnSelector)
     // 登录成功 保存 cookies
     await this.saveCookies()
-    await this.wait(1000)
+    // await this.page.waitForSelector(this.textareaSelector)
+    // await this.page.waitForSelector(this.sendBtnSelector)
+    // await this.wait(1000)
 
     // 如果存在教学向导
-    if (await this.page.$(this.nextBtnSelector) !== null) {
-      await this.page.waitForSelector(this.nextBtnSelector)
+    // if (await this.page.$(this.nextBtnSelector) !== null) {
+    //   await this.page.waitForSelector(this.nextBtnSelector)
       // await this.page.click(this.nextBtnSelector)
       // await this.wait(200)
       // await this.page.click(this.nextBtnSelector)
       // await this.wait(200)
       // await this.page.click(this.nextBtnSelector)
       // await this.wait(200)
-      await this.page.$eval(this.coverSelector, el => {
-        el.remove()
-      })
-    }
+    //   await this.page.$eval(this.coverSelector, el => {
+    //     el.remove()
+    //   })
+    // }
 
     await super.ready()
   }
